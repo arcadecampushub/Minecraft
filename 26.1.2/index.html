@@ -110,6 +110,43 @@
 		<script type="text/javascript" src="classes.js"></script>
 		<script type="text/javascript">
 			"use strict";
+
+			var achsAudioAllowed = function() {
+				try { if (navigator.userActivation && navigator.userActivation.hasBeenActive) return true; } catch (e) {}
+				try { if (navigator.getAutoplayPolicy) return navigator.getAutoplayPolicy("audiocontext") === "allowed"; } catch (e) {}
+				try {
+					var AC = window.AudioContext || window.webkitAudioContext;
+					if (!AC) return true;
+					var probe = new AC();
+					var ok = probe.state === "running";
+					probe.close();
+					return ok;
+				} catch (e) { return true; }
+			};
+			var achsUnlockAudio = function() {
+				try {
+					var AC = window.AudioContext || window.webkitAudioContext;
+					if (AC) { var c = new AC(); if (c.resume) c.resume(); setTimeout(function() { try { c.close(); } catch (e) {} }, 500); }
+				} catch (e) {}
+			};
+			var achsShowPlayGate = function(onPlay) {
+				var gate = document.createElement("div");
+				gate.id = "achs_play_gate";
+				gate.setAttribute("style", "position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0b0b0f;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;cursor:pointer;user-select:none;");
+				gate.innerHTML = '<button type="button" style="font:600 22px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px 44px;border-radius:12px;border:0;background:#3ba55d;color:#fff;cursor:pointer;box-shadow:0 6px 24px rgba(59,165,93,.35);">Click to play</button><div style="font-size:14px;opacity:.65;">Minecraft needs one click to turn on sound</div>';
+				var go = function(ev) {
+					if (ev && ev.type === "keydown" && (ev.key === "Tab" || ev.key === "Shift")) return;
+					document.removeEventListener("keydown", go, true);
+					gate.removeEventListener("click", go);
+					achsUnlockAudio();
+					if (gate.parentNode) gate.parentNode.removeChild(gate);
+					onPlay();
+				};
+				gate.addEventListener("click", go);
+				document.addEventListener("keydown", go, true);
+				(document.body || document.documentElement).appendChild(gate);
+				try { gate.querySelector("button").focus(); } catch (e) {}
+			};
 			window.addEventListener("load", function() {
 				if(window.location.href.indexOf("file:") === 0) {
 					alert("HTTP please, do not open this file locally, run a local HTTP server and load it via HTTP");
@@ -140,7 +177,7 @@
 						if(s) window.eaglercraftXOpts.joinServer = s;
 					}
 
-					main();
+					if (achsAudioAllowed()) { main(); } else { achsShowPlayGate(function() { main(); }); }
 				}
 			});
 		</script>
