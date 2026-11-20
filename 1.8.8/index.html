@@ -35,6 +35,31 @@ try {
 	var __srv = __qs.get("server");
 	if (__srv) window.eaglercraftXOptsHints.joinServer = __srv;
 } catch (e) {}
+try {
+	if (!localStorage.getItem("_achsServerListReset")) {
+		localStorage.setItem("_achsServerListReset", "1");
+		var __delSrv = function() {
+			var q = indexedDB.open("_net_lax1dude_eaglercraft_v1_8_internal_PlatformFilesystem_1_8_8_worlds");
+			q.onsuccess = function() {
+				var db = q.result, names = Array.prototype.slice.call(db.objectStoreNames);
+				if (!names.length) { db.close(); return; }
+				try {
+					var tx = db.transaction(names[0], "readwrite");
+					var st = tx.objectStore(names[0]);
+					var gk = st.getAllKeys();
+					gk.onsuccess = function() {
+						(gk.result || []).forEach(function(k) {
+							if (String(k).indexOf("servers.dat") !== -1) { try { st.delete(k); } catch (e) {} }
+						});
+					};
+				} catch (e) {}
+				setTimeout(function() { try { db.close(); } catch (e) {} }, 1200);
+			};
+			q.onerror = function() {};
+		};
+		setTimeout(__delSrv, 100);
+	}
+} catch (e) {}
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
