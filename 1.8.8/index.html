@@ -20,12 +20,21 @@ window.eaglercraftXOptsHints = {
 	hintsVersion: 1,
 	container: "game_frame",
 	worldsDB: "worlds",
+	servers: [
+		{ addr: "wss://mc.arcadecampushub.online/", name: "PatentSMP" }
+	],
 	relays: [
 		{ addr: "wss://relay.deev.is/", comment: "lax1dude relay #1", primary: relayId === 0 },
 		{ addr: "wss://relay.lax1dude.net/", comment: "lax1dude relay #2", primary: relayId === 1 },
 		{ addr: "wss://relay.shhnowisnottheti.me/", comment: "ayunami relay #1", primary: relayId === 2 }
 	],
 	checkRelaysForUpdates: true
+};
+try {
+	var __qs = new URLSearchParams(window.location.search);
+	var __srv = __qs.get("server");
+	if (__srv) window.eaglercraftXOptsHints.joinServer = __srv;
+} catch (e) {}
 };
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
