@@ -71,13 +71,15 @@
 					label.textContent = "Pre-loading Minecraft assets: 0%";
 					wrap.appendChild(fill);
 					wrap.appendChild(label);
-					document.body.appendChild(wrap);
+					(document.body || document.documentElement).appendChild(wrap);
 				}
 				function pct(p, got) {
 					if (hidden) return;
-					if (wrap === null) build();
-					fill.style.width = Math.max(0, Math.min(100, p)).toFixed(1) + "%";
-					label.textContent = "Pre-loading Minecraft assets: " + Math.floor(Math.max(0, Math.min(100, p))) + "% (" + (got / 1048576).toFixed(0) + " MB)";
+					try {
+						if (wrap === null) build();
+						fill.style.width = Math.max(0, Math.min(100, p)).toFixed(1) + "%";
+						label.textContent = "Pre-loading Minecraft assets: " + Math.floor(Math.max(0, Math.min(100, p))) + "% (" + (got / 1048576).toFixed(0) + " MB)";
+					} catch (e) {}
 				}
 				function done(got) {
 					pct(100, got);
