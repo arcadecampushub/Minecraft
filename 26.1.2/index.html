@@ -76,7 +76,8 @@
 				function pct(p, got) {
 					if (hidden) return;
 					try {
-						if (wrap === null) build();
+						if (wrap === null || !wrap.isConnected) build();
+						if (document.body && wrap.parentNode !== document.body) document.body.appendChild(wrap);
 						fill.style.width = Math.max(0, Math.min(100, p)).toFixed(1) + "%";
 						label.textContent = "Pre-loading Minecraft assets: " + Math.floor(Math.max(0, Math.min(100, p))) + "% (" + (got / 1048576).toFixed(0) + " MB)";
 					} catch (e) {}
@@ -84,7 +85,7 @@
 				function done(got) {
 					pct(100, got);
 					hidden = true;
-					setTimeout(function() { if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 700);
+					setTimeout(function() { try { if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); } catch (e) {} }, 700);
 				}
 				function fail() { hidden = true; if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); }
 				try {
