@@ -11,32 +11,100 @@
 		<meta property="og:title" content="Eaglercraft 26.1.2" />
 		<meta property="og:description" content="test directory HTML page" />
 		<link type="image/png" rel="shortcut icon" href="favicon.png" />
-		<script type="text/javascript" src="classes.js">try {
-	if (!localStorage.getItem("_achsServerListReset")) {
-		localStorage.setItem("_achsServerListReset", "1");
-		var __delSrv = function() {
-			var q = indexedDB.open("_net_lax1dude_eaglercraft_v1_8_internal_PlatformFilesystem_1_8_8_worlds");
-			q.onsuccess = function() {
-				var db = q.result, names = Array.prototype.slice.call(db.objectStoreNames);
-				if (!names.length) { db.close(); return; }
+		<link rel="preconnect" href="https://mc.arcadecampushub.online" crossorigin />
+		<script type="text/javascript">
+			try {
+						if (!localStorage.getItem("_achsSrvFix2")) {
+							localStorage.setItem("_achsSrvFix2", "1");
+							(function() {
+								var raw = null;
+						try { raw = localStorage.getItem("_eaglercraftX.s"); } catch (e) { return; }
+								if (!raw || typeof DecompressionStream === "undefined" || typeof Response === "undefined" || typeof WritableStream === "undefined") return;
+								var bin;
+								try { bin = atob(raw); } catch (e) { return; }
+								var arr = new Uint8Array(bin.length);
+								for (var i = 0; i < bin.length; ++i) arr[i] = bin.charCodeAt(i) & 255;
+								if (arr.length < 2 || arr[0] !== 0x1f || arr[1] !== 0x8b) return;
+								var chunks = [];
+								try {
+									new Response(arr.buffer).body.pipeThrough(new DecompressionStream("gzip")).pipeTo(new WritableStream({
+										write: function(c) { chunks.push(c); },
+										close: function() {
+											try {
+												var len = 0, i;
+												for (i = 0; i < chunks.length; ++i) len += chunks[i].length;
+												var nbt = new Uint8Array(len), o = 0;
+												for (i = 0; i < chunks.length; ++i) { nbt.set(chunks[i], o); o += chunks[i].length; }
+												// scan for every TAG_String named "ip" (0x08, len 0x0002, 'i','p') and read its length
+												var found = 0, allEmpty = true;
+												for (i = 0; i < nbt.length - 6; ++i) {
+													if (nbt[i] === 0x08 && nbt[i+1] === 0x00 && nbt[i+2] === 0x02 && nbt[i+3] === 0x69 && nbt[i+4] === 0x70) {
+														var l = (nbt[i+5] << 8) | nbt[i+6];
+														found++;
+														if (l !== 0) { allEmpty = false; break; }
+													}
+												}
+												if (found > 0 && allEmpty) {
+													localStorage.removeItem("_eaglercraftX.s");
+													console.warn("[achs] removed degenerate stored server list (no usable entries); baked defaults will show");
+												}
+											} catch (e) {}
+										}
+									})).catch(function() {});
+								} catch (e) {}
+							})();
+						}
+					} catch (e) {}
+		</script>
+		<script type="text/javascript">
+			"use strict";
+			(function() {
+				var ASSETS_URL = "https://mc.arcadecampushub.online/assets.epk";
+				var wrap = null, fill = null, label = null, hidden = false;
+				function build() {
+					wrap = document.createElement("div");
+					wrap.setAttribute("style", "position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#000;padding:8px 12px 10px 12px;font:12px monospace;color:#9a9a9a;");
+					fill = document.createElement("div");
+					fill.setAttribute("style", "height:3px;width:0%;background:#7cb342;transition:width .2s linear;");
+					label = document.createElement("div");
+					label.setAttribute("style", "margin-top:5px;");
+					label.textContent = "Pre-loading Minecraft assets: 0%";
+					wrap.appendChild(fill);
+					wrap.appendChild(label);
+					document.body.appendChild(wrap);
+				}
+				function pct(p, got) {
+					if (hidden) return;
+					if (wrap === null) build();
+					fill.style.width = Math.max(0, Math.min(100, p)).toFixed(1) + "%";
+					label.textContent = "Pre-loading Minecraft assets: " + Math.floor(Math.max(0, Math.min(100, p))) + "% (" + (got / 1048576).toFixed(0) + " MB)";
+				}
+				function done(got) {
+					pct(100, got);
+					hidden = true;
+					setTimeout(function() { if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 700);
+				}
+				function fail() { hidden = true; if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); }
 				try {
-					var tx = db.transaction(names[0], "readwrite");
-					var st = tx.objectStore(names[0]);
-					var gk = st.getAllKeys();
-					gk.onsuccess = function() {
-						(gk.result || []).forEach(function(k) {
-							if (String(k).indexOf("servers.dat") !== -1) { try { st.delete(k); } catch (e) {} }
-						});
-					};
+					if (typeof fetch !== "function" || typeof AbortController === "undefined") return;
+					fetch(ASSETS_URL, { method: "GET", mode: "cors", credentials: "omit", cache: "default" }).then(function(resp) {
+						if (!resp.ok || !resp.body) { fail(); return; }
+						var len = parseInt(resp.headers.get("content-length") || "0", 10);
+						var reader = resp.body.getReader();
+						var got = 0;
+						(function step() {
+							reader.read().then(function(r) {
+								if (r.done) { done(got); return; }
+								got += r.value ? r.value.byteLength : 0;
+								if (len > 0) pct((got / len) * 100, got); else pct(0, got);
+								step();
+							}, fail);
+						})();
+					}, fail);
 				} catch (e) {}
-				setTimeout(function() { try { db.close(); } catch (e) {} }, 1200);
-			};
-			q.onerror = function() {};
-		};
-		setTimeout(__delSrv, 100);
-	}
-} catch (e) {}
-</script>
+			})();
+		</script>
+		<script type="text/javascript" src="classes.js"></script>
 		<script type="text/javascript">
 			"use strict";
 			window.addEventListener("load", function() {
